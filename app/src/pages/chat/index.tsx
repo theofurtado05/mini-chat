@@ -7,7 +7,7 @@ import { HeaderComponent } from '../../components/system/header';
 import { useChat } from '../../contexts/chat.context';
 import type { Message } from '../../types/message';
 import { formatterDateMessage } from '../../lib/formatterDate';
-import { getMessages, sendMessage } from '../../services/message.service';
+import { getMessages, getUsersOnline, sendMessage } from '../../services/message.service';
 import { MessageSkeleton } from '../../components/ui/skeleton';
 
 
@@ -19,6 +19,7 @@ export default function ChatPage() {
   const [showModal, setShowModal] = useState(false);
   const [modalInput, setModalInput] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [usersOnline, setUsersOnline] = useState(0);
 
   const loadMessages = async () => {
     setIsLoading(true);
@@ -29,6 +30,11 @@ export default function ChatPage() {
     const messages = await getMessages();
     setMessages(messages);
     setIsLoading(false);
+  }
+
+  const loadUsersOnline = async () => {
+    const usersOnline = await getUsersOnline();
+    setUsersOnline(usersOnline);
   }
 
   const handleSend = async () => {
@@ -57,7 +63,12 @@ export default function ChatPage() {
 
   useEffect(() => {
     loadMessages();
+    loadUsersOnline()
   }, []);
+
+  useEffect(() => {
+    loadUsersOnline();
+  }, [messages]);
 
 
   const handleSaveName = () => {
@@ -75,7 +86,7 @@ export default function ChatPage() {
 
   
 
-  const usersOnline = 3;
+  
 
   return (
     <Container>
@@ -89,7 +100,7 @@ export default function ChatPage() {
             <MessageCard key={msg.id} $color={msg.color} $isCurrent={msg.author === userName}>
               <AvatarMsg $color={msg.color}>{msg.author[0]}</AvatarMsg>
               <MsgContent>
-                <MsgAuthor>{msg.author}</MsgAuthor>
+                <MsgAuthor>{msg.author === userName ? 'Você' : msg.author}</MsgAuthor>
                 <MsgText>{msg.text}</MsgText>
                 <MsgTime>{msg.sendAt ? formatterDateMessage(msg.sendAt) : ''}</MsgTime>
               </MsgContent>

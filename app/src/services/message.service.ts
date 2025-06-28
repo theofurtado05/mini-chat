@@ -1,5 +1,5 @@
 import type { Message } from '../types/message';
-import { messages } from '../data/messages';
+import { futureMessages, messages } from '../data/messages';
 
 const sleep = (ms: number = 300): Promise<void> => {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -32,4 +32,36 @@ export const sendMessage = async (data: Message): Promise<Message> => {
   messages.push(newMessage);
   
   return newMessage;
+};
+
+
+/**
+ * GET /messages/future
+ * Retorna a lista de mensagens futuras
+ */
+export const getFutureMessages = async (): Promise<Message[]> => {
+  await sleep();
+  return [...futureMessages];
+};  
+
+/**
+ * GET /chat/users-online
+ * Retorna o número de usuários online
+ */
+export const getUsersOnline = async (): Promise<number> => {
+  await sleep();
+  
+  // Conta autores unicos na lista de mensagens
+  const uniqueAuthors: string[] = [];
+
+  for (let i = 0; i < messages.length; i++) {
+
+    const author = messages[i].author;
+
+    if (!uniqueAuthors.includes(author)) {
+      uniqueAuthors.push(author);
+    }
+    
+  }
+  return uniqueAuthors.length;
 };
