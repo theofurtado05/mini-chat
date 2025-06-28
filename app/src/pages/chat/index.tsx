@@ -7,7 +7,7 @@ import { HeaderComponent } from '../../components/system/header';
 import { useChat } from '../../contexts/chat.context';
 import type { Message } from '../../types/message';
 import { formatterDateMessage } from '../../lib/formatterDate';
-import { getMessages } from '../../services/message.service';
+import { getMessages, sendMessage } from '../../services/message.service';
 import { MessageSkeleton } from '../../components/ui/skeleton';
 
 
@@ -20,7 +20,31 @@ export default function ChatPage() {
   const [modalInput, setModalInput] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
-  // Checar se existe um nome salvo no localStorage ao abrir a página
+  const loadMessages = async () => {
+    setIsLoading(true);
+    
+    const loadingTime = Math.random() * 1200 + 300; // 300ms - 1.5s
+    await new Promise(resolve => setTimeout(resolve, loadingTime));
+    
+    const messages = await getMessages();
+    setMessages(messages);
+    setIsLoading(false);
+  }
+
+  const handleSend = async () => {
+    if (!input.trim()) return;
+    const message = await sendMessage({
+      id: messages.length + 1,
+      author: userName || 'Você',
+      text: input,
+      sendAt: new Date(),
+      color: '#60A5FA',
+    });
+    setMessages([...messages, message]);
+    setInput('');
+  };
+  
+
   useEffect(() => {
     const saved = localStorage.getItem('currentUser');
     if (saved) {
@@ -30,23 +54,12 @@ export default function ChatPage() {
     }
   }, []);
 
-  //Carregar mensagens
+
   useEffect(() => {
-    const loadMessages = async () => {
-      setIsLoading(true);
-      
-      // Simula um tempo de loading entre 300ms e 1.5 segundos
-      const loadingTime = Math.random() * 1200 + 300; // 300ms a 1.5s
-      await new Promise(resolve => setTimeout(resolve, loadingTime));
-      
-      const messages = await getMessages();
-      setMessages(messages);
-      setIsLoading(false);
-    }
     loadMessages();
   }, []);
 
-  // Salvar nome no localStorage
+
   const handleSaveName = () => {
     if (modalInput.trim()) {
       setUserName(modalInput.trim());
@@ -54,27 +67,13 @@ export default function ChatPage() {
       setShowModal(false);
     }
   };
-
-  // Abrir modal para alterar o nome
+  
   const handleOpenModal = () => {
     setModalInput(userName);
     setShowModal(true);
   };
 
-  const handleSend = () => {
-    if (!input.trim()) return;
-    setMessages([
-      ...messages,
-      {
-        id: messages.length + 1,
-        author: userName || 'Você',
-        text: input,
-        sendAt: new Date(),
-        color: '#60A5FA',
-      },
-    ]);
-    setInput('');
-  };
+  
 
   const usersOnline = 3;
 

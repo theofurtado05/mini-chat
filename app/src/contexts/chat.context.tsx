@@ -5,6 +5,7 @@ import type { Message } from '../types/message';
 
 const ChatContext = createContext({
   messages: [] as Message[],
+  //@ts-ignore
   setMessages: (messages: Message[]) => {},
 });
 
