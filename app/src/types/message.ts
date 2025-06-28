@@ -1,6 +1,7 @@
 export type Message = {
-    id: string;
+    id?: number;
     author: string;
     text: string;
-    sendAt: Date;
+    sendAt?: Date;
+    color: string;
 }

@@ -4,41 +4,23 @@ import {
 } from './styled';
 import { ModalChangeName } from './_components/modal-change-name';
 import { HeaderComponent } from '../../components/system/header';
+import { useChat } from '../../contexts/chat.context';
+import type { Message } from '../../types/message';
+import { formatterDateMessage } from '../../lib/formatterDate';
+import { getMessages } from '../../services/message.service';
+import { MessageSkeleton } from '../../components/ui/skeleton';
 
-const mockMessages = [
-  {
-    id: '1',
-    author: 'João',
-    text: 'Olá, pessoal!',
-    time: '16:11',
-    color: '#A78BFA',
-  },
-  {
-    id: '2',
-    author: 'Maria',
-    text: 'Oi, João! Tudo bem?',
-    time: '16:12',
-    color: '#F472B6',
-  },
-  {
-    id: '3',
-    author: 'João',
-    text: 'Tudo ótimo! E com você?',
-    time: '16:13',
-    color: '#A78BFA',
-  },
-];
-
-const usersOnline = 3;
 
 export default function ChatPage() {
-  const [messages, setMessages] = useState(mockMessages);
+  const { messages, setMessages } = useChat();
+
   const [input, setInput] = useState('');
   const [userName, setUserName] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [modalInput, setModalInput] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Checar localStorage ao abrir a página
+  // Checar se existe um nome salvo no localStorage ao abrir a página
   useEffect(() => {
     const saved = localStorage.getItem('currentUser');
     if (saved) {
@@ -48,7 +30,23 @@ export default function ChatPage() {
     }
   }, []);
 
-  // Salvar nome
+  //Carregar mensagens
+  useEffect(() => {
+    const loadMessages = async () => {
+      setIsLoading(true);
+      
+      // Simula um tempo de loading entre 300ms e 1.5 segundos
+      const loadingTime = Math.random() * 1200 + 300; // 300ms a 1.5s
+      await new Promise(resolve => setTimeout(resolve, loadingTime));
+      
+      const messages = await getMessages();
+      setMessages(messages);
+      setIsLoading(false);
+    }
+    loadMessages();
+  }, []);
+
+  // Salvar nome no localStorage
   const handleSaveName = () => {
     if (modalInput.trim()) {
       setUserName(modalInput.trim());
@@ -57,7 +55,7 @@ export default function ChatPage() {
     }
   };
 
-  // Abrir modal para alterar nome
+  // Abrir modal para alterar o nome
   const handleOpenModal = () => {
     setModalInput(userName);
     setShowModal(true);
@@ -68,31 +66,37 @@ export default function ChatPage() {
     setMessages([
       ...messages,
       {
-        id: String(messages.length + 1),
+        id: messages.length + 1,
         author: userName || 'Você',
         text: input,
-        time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+        sendAt: new Date(),
         color: '#60A5FA',
       },
     ]);
     setInput('');
   };
 
+  const usersOnline = 3;
+
   return (
     <Container>
       <ModalChangeName showModal={showModal} userName={userName} setShowModal={setShowModal} modalInput={modalInput} setModalInput={setModalInput} handleSaveName={handleSaveName} />
       <HeaderComponent usersOnline={usersOnline} userName={userName} handleOpenModal={handleOpenModal} />
       <MessagesArea>
-        {messages.map((msg) => (
-          <MessageCard key={msg.id} $color={msg.color} $isCurrent={msg.author === userName}>
-            <AvatarMsg $color={msg.color}>{msg.author[0]}</AvatarMsg>
-            <MsgContent>
-              <MsgAuthor>{msg.author}</MsgAuthor>
-              <MsgText>{msg.text}</MsgText>
-              <MsgTime>{msg.time}</MsgTime>
-            </MsgContent>
-          </MessageCard>
-        ))}
+        {isLoading ? (
+          <MessageSkeleton count={4} />
+        ) : (
+          messages && messages.length > 0 && messages?.map((msg: Message) => (
+            <MessageCard key={msg.id} $color={msg.color} $isCurrent={msg.author === userName}>
+              <AvatarMsg $color={msg.color}>{msg.author[0]}</AvatarMsg>
+              <MsgContent>
+                <MsgAuthor>{msg.author}</MsgAuthor>
+                <MsgText>{msg.text}</MsgText>
+                <MsgTime>{msg.sendAt ? formatterDateMessage(msg.sendAt) : ''}</MsgTime>
+              </MsgContent>
+            </MessageCard>
+          ))
+        )}
       </MessagesArea>
       <InputArea>
         <Input

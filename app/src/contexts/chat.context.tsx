@@ -3,11 +3,15 @@ import type { ReactNode } from 'react';
 import type { Message } from '../types/message';
 
 
-const ChatContext = createContext({});
+const ChatContext = createContext({
+  messages: [] as Message[],
+  setMessages: (messages: Message[]) => {},
+});
 
 
 export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [messages, setMessages] = useState<Message[]>([]);
+
 
   const exportValue = {
     messages,
