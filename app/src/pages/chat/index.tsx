@@ -28,7 +28,7 @@ export default function ChatPage() {
   const currentMessageIndexRef = useRef(0);
   const messagesAreaRef = useRef<HTMLDivElement>(null);
 
-  // Função para fazer scroll para a última mensagem
+  // scroll para a última mensagem
   const scrollToBottom = () => {
     if (messagesAreaRef.current) {
       messagesAreaRef.current.scrollTo({
@@ -156,7 +156,7 @@ export default function ChatPage() {
     loadUsersOnline();
   }, [messages]);
 
-  // Auto-scroll quando mensagens mudam
+  // scroll quando mensagens mudam
   useEffect(() => {
     if (!isLoading) {
       scrollToBottom();

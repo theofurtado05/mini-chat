@@ -24,6 +24,16 @@ export const Avatar = styled.div`
   align-items: center;
   justify-content: center;
   font-size: 24px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  
+  &:hover {
+    opacity: 0.8;
+  }
+`;
+
+export const FileInput = styled.input`
+  display: none;
 `;
 
 export const Title = styled.h1`
