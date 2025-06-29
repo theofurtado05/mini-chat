@@ -1,12 +1,11 @@
 import React, { createContext, useContext, useState } from 'react';
-import type { ReactNode } from 'react';
+import type { ReactNode, Dispatch, SetStateAction } from 'react';
 import type { Message } from '../types/message';
 
 
 const ChatContext = createContext({
   messages: [] as Message[],
-  //@ts-ignore
-  setMessages: (messages: Message[]) => {},
+  setMessages: (() => {}) as Dispatch<SetStateAction<Message[]>>,
 });
 
 

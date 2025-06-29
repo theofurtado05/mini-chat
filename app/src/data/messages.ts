@@ -20,7 +20,7 @@ export const messages: Message[] = [
       author: "João", 
       text: "Tudo ótimo! E com você?",
       sendAt: new Date("2024-01-01T10:10:00Z"),
-      color: "#60A5FA"
+      color: "#A78BFA"
     }
 ];
 

@@ -34,7 +34,6 @@ export const sendMessage = async (data: Message): Promise<Message> => {
   return newMessage;
 };
 
-
 /**
  * GET /messages/future
  * Retorna a lista de mensagens futuras
