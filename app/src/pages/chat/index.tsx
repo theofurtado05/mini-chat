@@ -7,14 +7,14 @@ import { HeaderComponent } from '../../components/system/header';
 import { useChat } from '../../contexts/chat.context';
 import type { Message } from '../../types/message';
 import { formatterDateMessage } from '../../lib/formatterDate';
-import { getMessages, getUsersOnline, sendMessage, getFutureMessages } from '../../services/message.service';
+import { getMessages, getUsersOnline, sendMessage, getFutureMessages, sleep } from '../../services/message.service';
 import { MessageSkeleton } from '../../components/ui/skeleton';
 
 
 export default function ChatPage() {
   const { messages, setMessages } = useChat();
 
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState<string>('');
   const [userName, setUserName] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [modalInput, setModalInput] = useState('');
@@ -25,7 +25,7 @@ export default function ChatPage() {
 
   // refs para controlar envio automatico
   const autoSendIntervalRef = useRef<number | null>(null);
-  const currentMessageIndexRef = useRef(0);
+  const currentMessageIndexRef = useRef<number>(0);
   const messagesAreaRef = useRef<HTMLDivElement>(null);
 
   // scroll para a última mensagem
@@ -60,7 +60,7 @@ export default function ChatPage() {
   }
 
   const handleSend = async () => {
-    if (!input.trim()) return;
+    if (!input || input.length <= 0) return;
     const message = await sendMessage({
       id: messages.length + 1,
       author: userName || 'Você',
@@ -88,11 +88,11 @@ export default function ChatPage() {
     autoSendIntervalRef.current = setInterval(async () => {
       if (currentMessageIndexRef.current < futureMessages.length) {
         const messageData = futureMessages[currentMessageIndexRef.current];
-        
+        console.log(currentMessageIndexRef)
         try {
           showTyping(messageData.author);
           
-          await new Promise(resolve => setTimeout(resolve, 2000));
+          await sleep(2500);
 
           hideTyping();
           
@@ -105,7 +105,9 @@ export default function ChatPage() {
           });
           
           setMessages((prev: Message[]) => [...prev, newMessage]);
+
           currentMessageIndexRef.current++;
+
         } catch (error) {
           hideTyping();
         }
@@ -164,9 +166,9 @@ export default function ChatPage() {
   }, [messages, typingUser, isLoading]);
 
   const handleSaveName = () => {
-    if (modalInput.trim()) {
-      setUserName(modalInput.trim());
-      localStorage.setItem('currentUser', modalInput.trim());
+    if (modalInput && modalInput.length > 0) {
+      setUserName(modalInput);
+      localStorage.setItem('currentUser', modalInput);
       setShowModal(false);
     }
   };
@@ -222,7 +224,7 @@ export default function ChatPage() {
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleSend()}
         />
-        <SendButton onClick={handleSend} disabled={!input.trim()}>
+        <SendButton onClick={handleSend} disabled={!input || input.length <= 0}>
           <svg width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 21v-6l13-3-13-3V3l18 9-18 9Z" fill="#93C5FD"/></svg>
         </SendButton>
       </InputArea>

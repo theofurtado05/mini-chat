@@ -1,7 +1,7 @@
 import type { Message } from '../types/message';
 import { futureMessages, messages } from '../data/messages';
 
-const sleep = (ms: number = 300): Promise<void> => {
+export const sleep = (ms: number = 300): Promise<void> => {
   return new Promise(resolve => setTimeout(resolve, ms));
 };
 
